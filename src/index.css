@@ -8,35 +8,70 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Recovery-focused color palette */
+    --background: 210 100% 99%;
+    --foreground: 210 15% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 15% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 15% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Calming primary blues */
+    --primary: 210 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 210 100% 85%;
+    --primary-dark: 210 100% 35%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Healing greens */
+    --healing: 150 60% 50%;
+    --healing-foreground: 0 0% 100%;
+    --healing-light: 150 60% 85%;
+    --healing-dark: 150 60% 40%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Warm encouragement */
+    --encouragement: 25 100% 60%;
+    --encouragement-foreground: 0 0% 100%;
+    --encouragement-light: 25 100% 90%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Progress success */
+    --success: 120 70% 50%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 120 70% 90%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Gentle secondary */
+    --secondary: 210 30% 95%;
+    --secondary-foreground: 210 15% 20%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --muted: 210 30% 96%;
+    --muted-foreground: 210 10% 50%;
 
-    --radius: 0.5rem;
+    --accent: 150 60% 92%;
+    --accent-foreground: 150 60% 20%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 95%;
+    --ring: 210 100% 45%;
+
+    --radius: 0.75rem;
+
+    /* Gradients for visual appeal */
+    --gradient-healing: linear-gradient(135deg, hsl(var(--healing-light)), hsl(var(--healing)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--primary)));
+    --gradient-encouragement: linear-gradient(135deg, hsl(var(--encouragement-light)), hsl(var(--encouragement)));
+    --gradient-progress: linear-gradient(90deg, hsl(var(--success-light)), hsl(var(--success)));
+    
+    /* Shadows for depth */
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
+    --shadow-button: 0 2px 8px -1px hsl(var(var(--primary)) / 0.2);
+    
+    /* Animation variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
