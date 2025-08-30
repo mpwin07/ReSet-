@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_tasks: {
+        Row: {
+          ai_generated: boolean | null
+          category: string
+          completed_at: string | null
+          created_at: string | null
+          date: string | null
+          description: string
+          id: string
+          is_completed: boolean | null
+          stage: Database["public"]["Enums"]["addiction_stage"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          category: string
+          completed_at?: string | null
+          created_at?: string | null
+          date?: string | null
+          description: string
+          id?: string
+          is_completed?: boolean | null
+          stage: Database["public"]["Enums"]["addiction_stage"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string | null
+          date?: string | null
+          description?: string
+          id?: string
+          is_completed?: boolean | null
+          stage?: Database["public"]["Enums"]["addiction_stage"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      psychological_assessments: {
+        Row: {
+          created_at: string | null
+          id: string
+          responses: Json
+          score: number
+          stage: Database["public"]["Enums"]["addiction_stage"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          responses: Json
+          score: number
+          stage: Database["public"]["Enums"]["addiction_stage"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          responses?: Json
+          score?: number
+          stage?: Database["public"]["Enums"]["addiction_stage"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      addiction_stage: "mild" | "moderate" | "severe"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +272,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      addiction_stage: ["mild", "moderate", "severe"],
+    },
   },
 } as const
