@@ -105,12 +105,34 @@ export function Dashboard({ profile }: DashboardProps) {
         .from('user_streaks')
         .select('current_streak')
         .eq('user_id', profile.user_id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setStreak(streakData?.current_streak || 0);
+      
+      // If no streak record exists, create one
+      if (!streakData) {
+        const { data: newStreak, error: insertError } = await supabase
+          .from('user_streaks')
+          .insert([{
+            user_id: profile.user_id,
+            current_streak: 0,
+            longest_streak: 0
+          }])
+          .select('current_streak')
+          .single();
+        
+        if (insertError) {
+          console.error('Error creating streak record:', insertError);
+          setStreak(0);
+        } else {
+          setStreak(newStreak?.current_streak || 0);
+        }
+      } else {
+        setStreak(streakData?.current_streak || 0);
+      }
     } catch (error) {
       console.error('Error fetching streak:', error);
+      setStreak(0);
     }
   };
 

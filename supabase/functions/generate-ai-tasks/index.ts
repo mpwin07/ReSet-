@@ -99,6 +99,8 @@ Make tasks:
       }),
     });
 
+    console.log('Gemini response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', errorText);
