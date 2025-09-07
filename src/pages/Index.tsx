@@ -51,11 +51,32 @@ const Index = () => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data: profileData, error } = await supabase
+      let { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
+
+      // If no profile exists, create one
+      if (!profileData && !error) {
+        const displayName = user?.user_metadata?.display_name || 'User';
+        
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert([{
+            user_id: userId,
+            display_name: displayName
+          }])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          return;
+        }
+        
+        profileData = newProfile;
+      }
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -69,7 +90,7 @@ const Index = () => {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       const profileWithStage = {
         ...profileData,
