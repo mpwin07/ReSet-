@@ -18,9 +18,9 @@ serve(async (req) => {
     
     console.log('Generating AI tasks for stage:', stage, 'userId:', userId);
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('Gemini API key not configured');
     }
 
     // Initialize Supabase client
@@ -79,42 +79,41 @@ Make tasks:
 - Encouraging but realistic
 - Different from recent tasks if provided`;
 
-    console.log('Sending request to OpenAI...');
+    console.log('Sending request to Gemini...');
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a compassionate addiction recovery specialist who creates personalized daily tasks. Always respond with valid JSON only.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
+        contents: [{
+          parts: [{
+            text: `You are a compassionate addiction recovery specialist who creates personalized daily tasks. Always respond with valid JSON only.\n\n${prompt}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000,
+        }
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('Gemini API error:', errorText);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('Gemini response received');
 
     let tasks;
     try {
-      tasks = JSON.parse(data.choices[0].message.content);
+      const geminiText = data.candidates[0].content.parts[0].text;
+      tasks = JSON.parse(geminiText);
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response:', data.choices[0].message.content);
+      console.error('Failed to parse Gemini response:', data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response text');
       throw new Error('Invalid response format from AI');
     }
 
