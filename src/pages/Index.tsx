@@ -6,6 +6,7 @@ import { PsychologicalAssessment } from "@/components/PsychologicalAssessment";
 import { Button } from "@/components/ui/button";
 import { Heart, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -83,6 +84,20 @@ const Index = () => {
         return;
       }
 
+      // Reconcile display name if placeholder persists
+      const preferredDisplayName = user?.user_metadata?.display_name;
+      if (preferredDisplayName && profileData?.display_name && profileData.display_name !== preferredDisplayName) {
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('profiles')
+          .update({ display_name: preferredDisplayName })
+          .eq('user_id', userId)
+          .select('*')
+          .single();
+        if (!updateError && updatedProfile) {
+          profileData = updatedProfile;
+        }
+      }
+
       // Get the latest assessment to determine recovery stage
       const { data: latestAssessment } = await supabase
         .from('psychological_assessments')
@@ -123,10 +138,11 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-light via-healing-light to-encouragement-light">
+      <div className="h-screen flex items-center justify-center animated-bg">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-healing to-primary rounded-full animate-pulse mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">Loading RecoveryMate AI...</p>
+          <div className="w-20 h-20 gradient-primary rounded-2xl animate-pulse mx-auto mb-6 glow-primary"></div>
+          <p className="text-xl text-muted-foreground font-medium">Loading ReSet - The First step of New Life...</p>
+          <div className="mt-4 w-32 h-1 bg-gradient-to-r from-primary to-healing rounded-full mx-auto animate-pulse"></div>
         </div>
       </div>
     );
@@ -134,25 +150,61 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-light via-healing-light to-encouragement-light flex items-center justify-center p-4">
-        <div className="text-center space-y-6">
-          <div className="mx-auto mb-6 w-20 h-20 bg-gradient-to-br from-healing to-primary rounded-full flex items-center justify-center">
-            <Heart className="w-10 h-10 text-white" />
+      <div className="h-screen animated-bg flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-healing/10"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-healing/5 rounded-full blur-3xl"></div>
+        
+        {/* Theme Toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+        
+        <div className="text-center space-y-8 relative z-10 max-w-4xl mx-auto">
+          {/* Logo */}
+          <div className="mx-auto mb-8 w-24 h-24 gradient-primary rounded-2xl flex items-center justify-center glow-primary">
+            <Heart className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-healing bg-clip-text text-transparent">
-            Welcome to RecoveryMate AI
+          
+          {/* Main Heading */}
+          <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-healing to-encouragement bg-clip-text text-transparent neon-text leading-tight">
+            Welcome to ReSet
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Your personalized companion for addiction recovery. Get AI-powered daily tasks, track your progress, and build lasting healthy habits.
+          <h2 className="text-2xl md:text-3xl font-semibold text-muted-foreground">
+            The First Step of a New Life
+          </h2>
+          
+          {/* Description */}
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Your personalized companion for addiction recovery. Get AI-powered daily tasks, 
+            track your progress, and build lasting healthy habits with cutting-edge technology.
           </p>
-          <Button 
-            size="lg" 
-            onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-primary to-healing hover:from-primary-dark hover:to-healing-dark text-white px-8 py-6 text-lg"
-          >
-            <LogIn className="mr-2 h-5 w-5" />
-            Get Started
-          </Button>
+          
+          {/* CTA Button */}
+          <div className="pt-4">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/auth')}
+              className="gradient-primary hover-glow text-white px-12 py-8 text-xl font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
+            >
+              <LogIn className="mr-3 h-6 w-6" />
+              Get Started
+            </Button>
+          </div>
+          
+          {/* Feature Pills */}
+          <div className="flex flex-wrap justify-center gap-4 pt-8">
+            <div className="glass px-6 py-3 rounded-full">
+              <span className="text-sm font-medium text-foreground">AI-Powered Tasks</span>
+            </div>
+            <div className="glass px-6 py-3 rounded-full">
+              <span className="text-sm font-medium text-foreground">Progress Tracking</span>
+            </div>
+            <div className="glass px-6 py-3 rounded-full">
+              <span className="text-sm font-medium text-foreground">24/7 Support</span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -164,10 +216,11 @@ const Index = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-light via-healing-light to-encouragement-light">
+      <div className="h-screen flex items-center justify-center animated-bg">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-healing to-primary rounded-full animate-pulse mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">Setting up your profile...</p>
+          <div className="w-20 h-20 gradient-healing rounded-2xl animate-pulse mx-auto mb-6 glow-healing"></div>
+          <p className="text-xl text-muted-foreground font-medium">Setting up your profile...</p>
+          <div className="mt-4 w-32 h-1 bg-gradient-to-r from-healing to-encouragement rounded-full mx-auto animate-pulse"></div>
         </div>
       </div>
     );

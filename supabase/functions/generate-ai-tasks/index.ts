@@ -14,10 +14,15 @@ serve(async (req) => {
   }
 
   try {
-    const { stage, userId } = await req.json();
+    const { stage, userId, count } = await req.json();
+    const desiredCount = typeof count === 'number' && count > 0 ? Math.min(count, 10) : 5;
     
     console.log('Generating AI tasks for stage:', stage, 'userId:', userId);
 
+    // --- PLACEHOLDER: The API key is loaded from the environment variable ---
+    // DO NOT put your API key here directly!
+    // Instead, set GEMINI_API_KEY in your environment variables.q
+    
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
       throw new Error('Gemini API key not configured');
@@ -44,7 +49,7 @@ serve(async (req) => {
       .order('created_at', { ascending: false });
 
     // Create contextual prompt based on user data
-    let contextPrompt = `Generate 4-6 personalized daily recovery tasks for someone in the ${stage} stage of addiction recovery.`;
+    let contextPrompt = `Generate exactly ${desiredCount} personalized daily recovery tasks for someone in the ${stage} stage of addiction recovery.`;
     
     if (assessments && assessments.length > 0) {
       const latestScore = assessments[0].score;
@@ -118,6 +123,56 @@ Make tasks:
       console.error('Failed to parse Gemini response:', data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response text');
       throw new Error('Invalid response format from AI');
     }
+
+    // Enforce exactly desiredCount tasks
+    if (!Array.isArray(tasks)) {
+      tasks = [];
+    }
+
+    // Normalize shape
+    tasks = tasks.map((t: any) => ({
+      title: String(t.title || '').slice(0, 80),
+      description: String(t.description || '').slice(0, 200),
+      category: ['mindfulness','physical','social','reflection'].includes((t.category || '').toLowerCase())
+        ? (t.category || '').toLowerCase()
+        : 'reflection'
+    }));
+
+    // Safety check: never generate more than 5 tasks
+    const maxTasks = Math.min(desiredCount, 5);
+    
+    // If too many, trim; if too few, top-up with simple defaults
+    if (tasks.length > maxTasks) {
+      tasks = tasks.slice(0, maxTasks);
+    } else if (tasks.length < maxTasks) {
+      const fallbackPool = [
+        { title: '5-minute mindful breathing', description: 'Sit comfortably and focus on your breath for 5 minutes.', category: 'mindfulness' },
+        { title: '10-minute walk', description: 'Take a short walk outdoors and notice your surroundings.', category: 'physical' },
+        { title: 'Gratitude note', description: 'Write down one thing you’re grateful for today.', category: 'reflection' },
+        { title: 'Support message', description: 'Send a kind message to a supportive friend/family member.', category: 'social' },
+        { title: 'Hydration check', description: 'Drink a glass of water mindfully and notice how you feel.', category: 'physical' },
+        { title: 'Body scan', description: 'Do a brief head-to-toe body scan, releasing tension.', category: 'mindfulness' },
+      ];
+      let i = 0;
+      while (tasks.length < maxTasks) {
+        tasks.push(fallbackPool[i % fallbackPool.length]);
+        i++;
+      }
+    }
+
+    // Delete today's existing tasks to avoid duplicates
+    const todayIso = new Date().toISOString().split('T')[0];
+    const { error: deleteError } = await supabase
+      .from('daily_tasks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date', todayIso);
+    if (deleteError) {
+      console.error('Error clearing existing tasks:', deleteError);
+      throw deleteError;
+    }
+
+    console.log(`Cleared existing tasks for user ${userId} on ${todayIso}`);
 
     // Save tasks to database
     const tasksToInsert = tasks.map((task: any) => ({

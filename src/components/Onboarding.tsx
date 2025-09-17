@@ -28,7 +28,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             <Heart className="w-8 h-8 text-white" />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-healing bg-clip-text text-transparent">
-            Welcome to RecoveryMate AI
+            Welcome to ReSet - The First step of New Life
           </CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
             Your personal companion for recovery and growth

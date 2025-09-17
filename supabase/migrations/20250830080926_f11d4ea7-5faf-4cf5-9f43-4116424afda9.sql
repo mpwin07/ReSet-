@@ -61,6 +61,13 @@ CREATE POLICY "Users can insert their own profile" ON public.profiles
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = user_id);
+-- Ensure one task per title per user per day
+CREATE UNIQUE INDEX IF NOT EXISTS daily_tasks_unique_per_day
+ON public.daily_tasks (user_id, date, title);
+
+-- Allow users to delete their own tasks (for regeneration cleanup)
+CREATE POLICY "Users can delete their own tasks" ON public.daily_tasks
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- Create policies for psychological assessments
 CREATE POLICY "Users can view their own assessments" ON public.psychological_assessments
